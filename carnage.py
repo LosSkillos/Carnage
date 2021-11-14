@@ -1,9 +1,23 @@
 import os
 
+class _Getch:
+    def __init__(self):
+        import msvcrt
+
+    def __call__(self):
+        import msvcrt
+        return str(msvcrt.getch(), "utf-8")
+
+
+getch = _Getch()
+
+
+
 class effects:
 	def damage(player, amount):
 		actual = amount - player.ar
-		player.hp = player.hp - amount
+		if actual > 0:
+			player.hp = player.hp - amount
 	def heal(player, amount):
 		player.hp = player.hp + amount
 	def gain_ap(player, amount):
@@ -14,7 +28,17 @@ class effects:
 		player.ar = player.ar + amount
 	def gain_pen(player, amount):
 		player.pen = player.pen + amount
+	def gain_mana(player, amount):
+		player.mana = player.mana + amount
+	def gain_gold(player, amount):
+		player.gold = player.gold + amount
 	
+class items:
+	class potions:
+		def sheal(player):
+			effects.heal(player, player.hp / 8)
+		def heal(player):
+			effects.heal(player, player.hp / 6)
 
 class abilities:
 	class attacks:
@@ -45,18 +69,26 @@ class abilities:
 			effects.gain_ap(attacker, gain)
 		def ar(attacker, defender):
 			actual = attacker.ap / 3
-			gain = actual / 5
+			gain = actual / 2
 			effects.damage(defender, actual)
 			effects.gain_ar(attacker, gain)
 	class heals:
 		def mp(user):
-			effects.heal(user, user.mp)
-			
+			if user.mana > 20:
+				effects.heal(user, user.mp)
+				effects.gain_mana(user, -20)
+	class conversion:
+		def ap_mp(user):
+			ap = user.ap
+			mp = user.mp
+			add = ap / 5
+			effects.gain_ap(user, 0 - add)
+			effects.gain_mp(user, add)
 			
 		
 
 class player:
-	def __init__(self, name, abilities, ap, mp, ar, hp, pen):
+	def __init__(self, name, abilities, ap, mp, ar, hp, pen, mana, gold):
 		self.name = name
 		self.abilities = abilities
 		self.ap = ap
@@ -64,6 +96,8 @@ class player:
 		self.ar = ar
 		self.hp = hp
 		self.pen = pen
+		self.mana = mana
+		self.gold = gold
 	def print(self):
 		print("Name: ", self.name)
 		print("Abilities: ", self.abilities)
@@ -72,9 +106,11 @@ class player:
 		print("Armor: ", self.ar)
 		print("Health: ", self.hp)
 		print("Penetration", self.pen)
+		print("Mana: ", self.mana)
+		print("Gold: ", self.gold)
 
-nigma = player("nigga", "xd", 80, 10, 10, 500, 0)
-ligma = player("ligma", "xd", 80, 10, 10, 500, 0)
+nigma = player("nigga", "xd", 80, 10, 10, 500, 0, 100, 0)
+ligma = player("ligma", "xd", 10, 80, 10, 500, 0, 100, 0)
 
 players = []
 players.append(nigma)
@@ -93,6 +129,7 @@ stacks.append(abilities.stacking.ar)
 
 while True:
 	for num, player in enumerate(players):
+		effects.gain_gold(player, 20)
 		for player in players:
 			print("-----------------------------------")
 			player.print()
@@ -103,26 +140,31 @@ while True:
 		else:
 			enemy = players[0]
 		print(str(num) + "-" + player.name, " choose action:")
-		print(":Attack")
-		print(":Stack")
-		print(":Heal")
-		choice = input()
-		if choice == "Attack":
+		print("1 Attack")
+		print("2 Stack")
+		print("3 Heal")
+		print("4 Convert")
+		choice = getch()
+		if choice == "1":
 			print(">Choose Attack: ")
 			print(" 1 Basic")
 			print(" 2 Lifesteal")
 			print(" 3 Slash")
 			print(" 4 Combine")
-			ab = int(input())
+			ab = int(getch())
 			fn = attacks[ab - 1]
 			fn(player, enemy)
-		if choice == "Stack":
+		if choice == "2":
 			print(">Choose stacking method")
 			print(" 1 Attack power > Attack power")
 			print(" 2 Attack power > Armor")
-			ab = int(input())
-			fn = attacks[ab - 1]
+			ab = int(getch())
+			fn = stacks[ab - 1]
 			fn(player, enemy)
+		if choice == "3":
+			abilities.heals.mp(player)
+		if choice == "4":
+			abilities.conversion.ap_mp(player)
 		os.system("cls")
 		
 

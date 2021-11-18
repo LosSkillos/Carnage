@@ -32,13 +32,33 @@ class effects:
 		player.mana = player.mana + amount
 	def gain_gold(player, amount):
 		player.gold = player.gold + amount
-	
+
+class item:
+	def __init__(self, func, name, desc):
+		self.func = func
+		self.name = name
+		self.desc = desc
+	def call(self, arg):
+		self.func(arg)
+
+
+
+
 class items:
 	class potions:
-		def sheal(player):
+		def f_sheal(player):
 			effects.heal(player, player.hp / 8)
-		def heal(player):
+		def f_heal(player):
 			effects.heal(player, player.hp / 6)
+	class ad:
+		def f_stormark(player):
+			effects.gain_ap(player, 40)
+			effects.gain_mp(player, 40)
+			effects.gain_pen(player, 2)
+		stormark = item(f_stormark, "Storm Ark", "Gives 40 AP, 40 MP and 2 Pen")
+						
+			
+
 
 class abilities:
 	class attacks:
@@ -84,11 +104,12 @@ class abilities:
 			add = ap / 5
 			effects.gain_ap(user, 0 - add)
 			effects.gain_mp(user, add)
-			
+
+
 		
 
 class player:
-	def __init__(self, name, abilities, ap, mp, ar, hp, pen, mana, gold):
+	def __init__(self, name, abilities, ap, mp, ar, hp, pen, mana, gold, items):
 		self.name = name
 		self.abilities = abilities
 		self.ap = ap
@@ -98,6 +119,7 @@ class player:
 		self.pen = pen
 		self.mana = mana
 		self.gold = gold
+		self.items = items
 	def print(self):
 		print("Name: ", self.name)
 		print("Abilities: ", self.abilities)
@@ -109,12 +131,13 @@ class player:
 		print("Mana: ", self.mana)
 		print("Gold: ", self.gold)
 
-nigma = player("nigga", "xd", 80, 10, 10, 500, 0, 100, 0)
-ligma = player("ligma", "xd", 10, 80, 10, 500, 0, 100, 0)
+nigma = player("nigga", "xd", 80, 10, 10, 500, 0, 100, 0, ["healpot"])
+ligma = player("ligma", "xd", 10, 80, 10, 500, 0, 100, 0, ["manapot"])
 
 players = []
 players.append(nigma)
 players.append(ligma)
+
 
 attacks = []
 attacks.append(abilities.attacks.basic)
@@ -144,6 +167,7 @@ while True:
 		print("2 Stack")
 		print("3 Heal")
 		print("4 Convert")
+		print("5 Items")
 		choice = getch()
 		if choice == "1":
 			print(">Choose Attack: ")
@@ -165,6 +189,23 @@ while True:
 			abilities.heals.mp(player)
 		if choice == "4":
 			abilities.conversion.ap_mp(player)
+		if choice == "5":
+			print("Your items: ")
+			for n, item in enumerate(player.items):
+				print("%d. %s" % (n, item))
+			print("Options:")
+			print("1 Buy")
+			choice = getch()
+			if choice == "1":
+				print("Item selection by type:")
+				print("1 AP")
+				print("2 MP")
+				print("3 HP")
+				choice = getch()
+				if choice == "1":
+					print("AP Items:")
+					print("1. " + items.ad.stormark.name, ": ", items.ad.stormark.desc)
+					input()
 		os.system("cls")
 		
 
